@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.RadarDeNormativas"
+        parent="Theme.MaterialComponents.DayNight">
+
+        <!-- Color principal para botones y elementos interactivos -->
+        <item name="colorPrimary">#F44336</item>
+        <item name="colorPrimaryVariant">#D32F2F</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+
+        <!-- Fondo de la app -->
+        <item name="android:windowBackground">@color/fondo_principal</item>
+        <item name="android:statusBarColor">@color/fondo_principal</item>
+        <item name="android:navigationBarColor">@color/fondo_principal</item>
+
+        <!-- ActionBar con fondo que cambia según tema -->
+        <item name="actionBarStyle">@style/EstiloActionBar</item>
+        <item name="actionMenuTextColor">@color/texto_principal</item>
+    </style>
+
+    <style name="EstiloActionBar"
+        parent="Widget.AppCompat.ActionBar">
+        <item name="background">@color/fondo_principal</item>
+        <item name="titleTextStyle">@style/EstiloTituloActionBar</item>
+        <item name="elevation">0dp</item>
+    </style>
+
+    <style name="EstiloTituloActionBar"
+        parent="TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="android:textColor">@color/texto_principal</item>
+    </style>
+
+</resources>

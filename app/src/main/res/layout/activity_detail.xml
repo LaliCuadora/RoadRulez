@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/fondo_principal">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        android:paddingTop="80dp"
+        android:paddingBottom="24dp">
+
+        <!-- Municipio -->
+        <TextView
+            android:id="@+id/tv_detalle_municipio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:textColor="@color/texto_principal"/>
+
+        <!-- Provincia -->
+        <TextView
+            android:id="@+id/tv_detalle_provincia"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textSize="14sp"
+            android:textColor="@color/texto_secundario"/>
+
+        <!-- Estado badge -->
+        <TextView
+            android:id="@+id/tv_detalle_badge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="6dp"
+            android:paddingBottom="6dp"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="@color/blanco"
+            android:background="@drawable/bg_badge_estado"/>
+
+        <!-- Separador -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="24dp"
+            android:background="@color/separador"/>
+
+        <!-- Título sección -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="NORMATIVA COMPLETA"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            android:textColor="@color/texto_secundario"
+            android:letterSpacing="0.1"/>
+
+        <!-- Texto completo de la normativa -->
+        <TextView
+            android:id="@+id/tv_detalle_normativa"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:textSize="15sp"
+            android:lineSpacingMultiplier="1.6"
+            android:textColor="@color/texto_principal"/>
+
+        <!-- Separador -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="16dp"
+            android:background="@color/separador"/>
+
+        <!-- Fuente -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="FUENTE OFICIAL"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            android:textColor="@color/texto_secundario"
+            android:letterSpacing="0.1"/>
+
+        <TextView
+            android:id="@+id/tv_detalle_fuente"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textSize="13sp"
+            android:textColor="#1976D2"
+            android:autoLink="web"/>
+
+        <!-- Fecha -->
+        <TextView
+            android:id="@+id/tv_detalle_fecha"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:textSize="12sp"
+            android:textColor="@color/texto_secundario"/>
+
+    </LinearLayout>
+</ScrollView>

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         PERMISOS DE UBICACIÓN
+         ═══════════════════════════════════════════════════════════════════════
+
+         COARSE → Ubicación aproximada (torres de móvil + WiFi). Precisión ~300m.
+         FINE   → GPS real. Precisión <10m. NECESARIO para Geofencing.
+
+         Siempre declara ambos: FINE incluye COARSE, pero Android los trata
+         por separado en el diálogo de permisos de usuario.
+    -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+    <!--
+         BACKGROUND LOCATION → Permite obtener ubicación cuando la app está
+         en segundo plano (necesario para las alertas de Geofencing).
+
+         ⚠️  IMPORTANTE: A partir de Android 10 (API 29), este permiso
+         requiere una justificación especial ante Google Play. Por ahora
+         lo declaramos pero NO lo pediremos hasta el Hito de Geofencing.
+         El usuario deberá concederlo manualmente en Ajustes.
+    -->
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+
+    <!--
+         INTERNET → Para sincronizar normativas desde la API en el futuro.
+         Es un permiso NORMAL: se concede automáticamente, sin diálogo.
+    -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!--
+         RECEIVE_BOOT_COMPLETED → Relanzar el servicio de Geofencing
+         si el teléfono se reinicia. Lo necesitaremos más adelante.
+    -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <!-- Permiso de notificaciones (obligatorio desde Android 13 / API 33) -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+
+    <!-- Permiso que necesita Geofencing para funcionar en background -->
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
+
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         FEATURE DECLARATION
+         Le dice a Google Play que la app REQUIERE GPS. Los dispositivos
+         sin GPS no podrán instalarla. Ponemos required="false" para
+         permitir tablets sin GPS (mostraremos un aviso en la UI).
+    -->
+    <uses-feature
+        android:name="android.hardware.location.gps"
+        android:required="false" />
+
+    <application
+        android:name=".RadarApplication"
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.RadarDeNormativas">
+
+        <activity
+            android:name=".ui.search.SearchActivity"
+            android:parentActivityName=".MainActivity"
+            android:exported="false"/>
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+
+        <!-- El BroadcastReceiver que escucha eventos de Geofencing -->
+        <!-- exported="false" → solo nuestra app puede activarlo, más seguro -->
+        <receiver
+            android:name=".geofencing.GeofenceBroadcastReceiver"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.detail.DetailActivity"
+            android:parentActivityName=".MainActivity"
+            android:exported="false"/>
+
+
+
+    </application>
+
+</manifest>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Fondos oscuros -->
+    <color name="fondo_principal">#121212</color>
+    <color name="fondo_tarjeta">#1E1E1E</color>
+
+    <!-- Textos (invertidos respecto al tema claro) -->
+    <color name="texto_principal">#EEEEEE</color>
+    <color name="texto_secundario">#9E9E9E</color>
+    <color name="separador">#2C2C2C</color>
+    <color name="blanco">#FFFFFFFF</color>
+
+    <!-- Los colores de estado no cambian, son iguales en ambos temas -->
+    <color name="estado_permitido">#4CAF50</color>
+    <color name="estado_restringido">#FFC107</color>
+    <color name="estado_prohibido">#F44336</color>
+    <color name="estado_sin_datos">#9E9E9E</color>
+</resources>

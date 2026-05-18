@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- UI General Dark -->
+    <color name="fondo_principal">#121212</color>
+    <color name="fondo_tarjeta">#1E1E1E</color>
+    <color name="texto_principal">#FFFFFF</color>
+    <color name="texto_secundario">#B0B0B0</color>
+    <color name="separador">#333333</color>
+</resources>

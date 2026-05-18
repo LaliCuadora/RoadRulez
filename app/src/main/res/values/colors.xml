@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="blanco">#FFFFFFFF</color>
+
+    <!-- Estados de normativa -->
+    <color name="estado_permitido">#4CAF50</color>
+    <color name="estado_restringido">#FFC107</color>
+    <color name="estado_prohibido">#F44336</color>
+    <color name="estado_sin_datos">#9E9E9E</color>
+
+    <!-- UI General -->
+    <color name="fondo_principal">#F5F5F5</color>
+    <color name="fondo_tarjeta">#FFFFFF</color>
+    <color name="texto_principal">#212121</color>
+    <color name="texto_secundario">#757575</color>
+    <color name="separador">#E0E0E0</color>
+</resources>
