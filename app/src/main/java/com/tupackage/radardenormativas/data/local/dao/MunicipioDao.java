@@ -28,7 +28,7 @@ public interface MunicipioDao {
     // ── ESCRITURA ─────────────────────────────────────────────────────────────
 
     /**
-     * Inserta UN municipio. Si ya existe (mismo codigoIne), lo REEMPLAZA.
+     * Inserta un municipi. Si ya existe (mismo codigoIne) -----> lo REEMPLAZA.
      * OnConflictStrategy.REPLACE = útil para sincronizar datos desde la API.
      */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -141,4 +141,12 @@ public interface MunicipioDao {
      */
     @Query("SELECT COUNT(*) FROM municipios")
     int contarMunicipios();
+
+    /**
+     * Búsqueda síncrona por nombre exacto.
+     * Usada como fallback cuando Nominatim devuelve nombre pero no código INE.
+     */
+    @Query("SELECT * FROM municipios WHERE nombre LIKE '%' || :query || '%' " +
+            "ORDER BY nombre ASC LIMIT 5")
+    List<Municipio> buscarPorNombreSync(String query);
 }

@@ -32,32 +32,44 @@ public class GeofenceManager {
 
     /**
      * Registra un geofence por cada municipio en la lista.
-     * Cuando el usuario entre en el radio de cualquiera,
-     * Android disparará el GeofenceBroadcastReceiver.
-     *
-     * IMPORTANTE: requiere permiso ACCESS_FINE_LOCATION concedido.
-     * La anotación suprime el warning: ya verificamos el permiso
-     * antes de llamar a este método desde MainActivity.
+     * Google Play Services limita a 100 geofences por aplicación.
+     * Si la lista es mayor, se registrarán solo los 100 primeros.
      */
     @SuppressWarnings("MissingPermission")
     public void registrarGeofences(List<Municipio> municipios) {
         if (municipios == null || municipios.isEmpty()) return;
 
+        // Primero eliminamos cualquier geofence previo registrado con nuestro PendingIntent
+        // para no acumularlos y superar el límite de 100 de Google Play Services.
+        geofencingClient.removeGeofences(obtenerPendingIntent())
+                .addOnCompleteListener(task -> {
+                    // Una vez eliminados (o si no había), registramos los nuevos
+                    hacerRegistroGeofences(municipios);
+                });
+    }
+
+    @SuppressWarnings("MissingPermission")
+    private void hacerRegistroGeofences(List<Municipio> municipios) {
+        // Límite de Google Play Services: 100 geofences
+        List<Municipio> listaLimitada;
+        if (municipios.size() > 100) {
+            Log.w(TAG, "Límite de 100 geofences excedido. Registrando solo los primeros 100 de " + municipios.size());
+            listaLimitada = municipios.subList(0, 100);
+        } else {
+            listaLimitada = municipios;
+        }
+
         List<Geofence> geofences = new ArrayList<>();
 
-        for (Municipio municipio : municipios) {
+        for (Municipio municipio : listaLimitada) {
             geofences.add(new Geofence.Builder()
-                    // ID único: usamos el código INE para poder identificarlo
-                    // en el BroadcastReceiver y buscar el municipio en la BD
                     .setRequestId(municipio.getCodigoIne())
                     .setCircularRegion(
                             municipio.getLatitud(),
                             municipio.getLongitud(),
                             RADIO_METROS
                     )
-                    // NEVER_EXPIRE → el geofence no caduca solo
                     .setExpirationDuration(Geofence.NEVER_EXPIRE)
-                    // Queremos saber cuando ENTRA (y opcionalmente cuando SALE)
                     .setTransitionTypes(
                             Geofence.GEOFENCE_TRANSITION_ENTER |
                                     Geofence.GEOFENCE_TRANSITION_EXIT
@@ -67,7 +79,6 @@ public class GeofenceManager {
         }
 
         GeofencingRequest request = new GeofencingRequest.Builder()
-                // INITIAL_TRIGGER_ENTER → si ya estás dentro al registrar, avisa
                 .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
                 .addGeofences(geofences)
                 .build();
@@ -75,9 +86,9 @@ public class GeofenceManager {
         geofencingClient
                 .addGeofences(request, obtenerPendingIntent())
                 .addOnSuccessListener(unused ->
-                        Log.d(TAG, "Geofences registrados: " + geofences.size()))
+                        Log.d(TAG, "Geofences registrados con éxito: " + geofences.size()))
                 .addOnFailureListener(e ->
-                        Log.e(TAG, "Error registrando geofences: " + e.getMessage()));
+                        Log.e(TAG, "Error crítico registrando geofences: " + e.getMessage()));
     }
 
     /** Cancela todos los geofences activos. Llámalo en onDestroy si es necesario. */
