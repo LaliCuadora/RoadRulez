@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "fecha_generacion": "2026-05-17",
+  "total_municipios": 3,
+  "municipios": [
+    {
+      "codigo_ine": "18087",
+      "nombre": "Granada",
+      "provincia": "Andalucía",
+      "latitud": 37.1773,
+      "longitud": -3.5986,
+      "estado_norma": "RESTRINGIDO",
+      "texto_normativa": "Ordenanza Municipal de Convivencia Ciudadana (2019), art. 45: Se permite la estancia de vehículos habitables en zonas no urbanas siempre que no supere las 48h y no se generen residuos. Queda prohibido el uso de generadores entre las 22:00 y las 08:00 horas.",
+      "resumen_corto": "Permitido fuera de zona urbana, máx. 48h. Sin generadores nocturnos.",
+      "fuente_url": "https://www.granada.es/bop/2019/ordenanza-convivencia",
+      "ultima_actualizacion": "2024-03-15"
+    },
+    {
+      "codigo_ine": "29067",
+      "nombre": "Málaga",
+      "provincia": "Andalucía",
+      "latitud": 36.7213,
+      "longitud": -4.4213,
+      "estado_norma": "PROHIBIDO",
+      "texto_normativa": "Ordenanza de Protección de Espacios Públicos (2021): Queda expresamente prohibida la pernocta en vehículos de cualquier tipo en todo el término municipal, incluidas áreas de servicio no habilitadas. Sanción: 750€.",
+      "resumen_corto": "PROHIBIDO en todo el término municipal. Multa: 750€.",
+      "fuente_url": "https://www.malaga.eu/bop/2021/ordenanza-espacios",
+      "ultima_actualizacion": "2024-01-10"
+    },
+    {
+      "codigo_ine": "18159",
+      "nombre": "Ronda",
+      "provincia": "Andalucía",
+      "latitud": 36.7468,
+      "longitud": -5.1614,
+      "estado_norma": "PERMITIDO",
+      "texto_normativa": "El Ayuntamiento de Ronda no dispone de ordenanza específica que regule la pernocta en autocaravanas. Se aplica la normativa general de tráfico. Área de autocaravanas habilitada en Av. Málaga s/n (gratuita, 72h máximo).",
+      "resumen_corto": "Permitido. Área gratuita en Av. Málaga (72h máx).",
+      "fuente_url": "https://www.ronda.es/turismo/autocaravanas",
+      "ultima_actualizacion": "2023-11-20"
+    }
+  ]
+}
