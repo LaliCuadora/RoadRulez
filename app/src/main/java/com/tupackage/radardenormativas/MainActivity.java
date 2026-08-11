@@ -322,8 +322,8 @@ public class MainActivity extends AppCompatActivity {
     @SuppressWarnings("MissingPermission")
     private void obtenerUbicacion() {
         locationRequest = new LocationRequest.Builder(
-                Priority.PRIORITY_HIGH_ACCURACY, 5000L)
-                .setMinUpdateIntervalMillis(2000L)
+                Priority.PRIORITY_HIGH_ACCURACY, 5000L) //Intervalo de esperar para consultar ubicación
+                .setMinUpdateIntervalMillis(2000L)                 //Intervalo de espera mínimo para consultar ubicación
                 .build();
 
         locationCallback = new LocationCallback() {

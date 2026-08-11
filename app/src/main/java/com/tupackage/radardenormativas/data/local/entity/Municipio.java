@@ -128,6 +128,8 @@ public class Municipio {
     // Android Studio puede generarlos: clic derecho → Generate → Getter and Setter
 
     @NonNull public String getCodigoIne()           { return codigoIne; }
+
+    // PRE: El código NIE debe ser válido (5 dígitos)
     public void setCodigoIne(@NonNull String v)     { this.codigoIne = v; }
 
     @NonNull public String getNombre()              { return nombre; }

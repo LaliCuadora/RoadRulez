@@ -9,6 +9,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 
+import com.tupackage.radardenormativas.data.local.RadarDatabase;
 import com.tupackage.radardenormativas.data.local.entity.Municipio;
 import com.tupackage.radardenormativas.data.repository.MunicipioRepository;
 
@@ -33,6 +34,7 @@ public class MainViewModel extends AndroidViewModel {
     }
 
     // ── Constructor: todo se inicializa aquí, en orden garantizado ────────────
+    // ── Constructor: todo se inicializa aquí, en orden garantizado ────────────
     public MainViewModel(@NonNull Application application) {
         super(application);
 
@@ -44,14 +46,23 @@ public class MainViewModel extends AndroidViewModel {
         estadoUbicacion  = new MutableLiveData<>(EstadoUbicacion.ESPERANDO_PERMISO);
         porcentajeCompletado = new MutableLiveData<>(0.0);
 
-        // 3. Por último el switchMap, que ya puede usar repository sin problemas
+        // 3. Por último el switchMap, integrando tu nueva lógica con el executor
         municipiosCercanos = Transformations.switchMap(ubicacionActual, location -> {
             if (location == null) return new MutableLiveData<>(null);
-            return repository.getMunicipiosCercanos(
-                    location.getLatitude(),
-                    location.getLongitude(),
-                    50
-            );
+
+            MutableLiveData<List<Municipio>> resultado = new MutableLiveData<>();
+
+            RadarDatabase.databaseWriteExecutor.execute(() -> {
+                List<Municipio> municipios =
+                        repository.obtenerMunicipioActualConCercanos(
+                                location.getLatitude(),
+                                location.getLongitude()
+                        );
+                // Usamos postValue porque estamos en un hilo de fondo (executor)
+                resultado.postValue(municipios);
+            });
+
+            return resultado;
         });
 
         actualizarEstadisticas();
@@ -65,8 +76,6 @@ public class MainViewModel extends AndroidViewModel {
     public LiveData<Double> getPorcentajeCompletado() {
         return porcentajeCompletado;
     }
-
-    // ── El resto queda exactamente igual ─────────────────────────────────────
 
     public void actualizarUbicacion(Location location) {
         ubicacionActual.setValue(location);

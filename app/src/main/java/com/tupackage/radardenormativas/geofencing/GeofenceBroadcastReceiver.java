@@ -44,17 +44,26 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {
             String codigoIne = geofencesDisparados.get(0).getRequestId();
             Log.d(TAG, "Entrando en municipio con código INE: " + codigoIne);
 
+            // Usamos goAsync() para dar tiempo al hilo de fondo a terminar
+            // antes de que el sistema pueda matar el proceso del Receiver.
+            final PendingResult pendingResult = goAsync();
+
             // Consultamos la BD en background para obtener los datos del municipio
             RadarDatabase.databaseWriteExecutor.execute(() -> {
-                Municipio municipio = RadarDatabase
-                        .getInstance(context)
-                        .municipioDao()
-                        .obtenerPorCodigoIneSync(codigoIne);
+                try {
+                    Municipio municipio = RadarDatabase
+                            .getInstance(context)
+                            .municipioDao()
+                            .obtenerPorCodigoIneSync(codigoIne);
 
-                if (municipio != null) {
-                    // Lanzamos la notificación (se puede llamar desde cualquier hilo)
-                    NotificationHelper.lanzarNotificacionMunicipio(context, municipio);
-                    Log.d(TAG, "Notificación lanzada para: " + municipio.getNombre());
+                    if (municipio != null) {
+                        // Lanzamos la notificación (se puede llamar desde cualquier hilo)
+                        NotificationHelper.lanzarNotificacionMunicipio(context, municipio);
+                        Log.d(TAG, "Notificación lanzada para: " + municipio.getNombre());
+                    }
+                } finally {
+                    // Imprescindible llamar a finish() para liberar el PendingResult
+                    pendingResult.finish();
                 }
             });
 
