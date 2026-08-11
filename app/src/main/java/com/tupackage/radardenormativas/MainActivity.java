@@ -61,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView tvProvincia;
     private TextView tvBadgeEstado;
     private TextView tvFecha;
+    private TextView tvPorcentaje;
     private View     tvIconoUbicacion;
     private com.google.android.material.button.MaterialButton btnVerCompleta;
     private androidx.cardview.widget.CardView cardNormativa;
@@ -197,6 +198,7 @@ public class MainActivity extends AppCompatActivity {
         tvProvincia     = findViewById(R.id.tv_provincia);
         tvBadgeEstado   = findViewById(R.id.tv_badge_estado);
         tvFecha         = findViewById(R.id.tv_fecha);
+        tvPorcentaje    = findViewById(R.id.tv_porcentaje_datos);
         tvIconoUbicacion = findViewById(R.id.tv_icono_ubicacion);
         indicadorColor  = findViewById(R.id.view_indicador_color);
         cardNormativa   = findViewById(R.id.card_normativa);
@@ -241,6 +243,13 @@ public class MainActivity extends AppCompatActivity {
             if (municipios == null || municipios.isEmpty()) return;
 
             mostrarInfoMunicipio(municipios.get(0));
+        });
+
+        viewModel.getPorcentajeCompletado().observe(this, porcentaje -> {
+            if (tvPorcentaje != null) {
+                tvPorcentaje.setText(String.format(Locale.getDefault(),
+                        "Porcentaje de municipios con datos: %.1f%%", porcentaje));
+            }
         });
     }
 

@@ -71,4 +71,17 @@ public class MunicipioRepository {
             callback.accept(tiene);
         });
     }
+
+    /**
+     * Calcula el porcentaje de municipios con normativa cargada.
+     * @param totalMunicipios El número total que esperamos tener (ej: 8131 en España).
+     * @param callback Devuelve el porcentaje (0-100).
+     */
+    public void obtenerPorcentajeCompletado(int totalMunicipios, java.util.function.Consumer<Double> callback) {
+        RadarDatabase.databaseWriteExecutor.execute(() -> {
+            int completos = municipioDao.contarMunicipiosCompletos();
+            double porcentaje = (completos * 100.0) / totalMunicipios;
+            callback.accept(porcentaje);
+        });
+    }
 }

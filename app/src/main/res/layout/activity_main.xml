@@ -144,6 +144,16 @@
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
+            <!-- Nueva sección de estadísticas -->
+            <TextView
+                android:id="@+id/tv_porcentaje_datos"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:textSize="12sp"
+                android:textColor="@color/texto_secundario"
+                android:text="Cargando progreso de la base de datos..."/>
+
         </LinearLayout>
     </ScrollView>
 

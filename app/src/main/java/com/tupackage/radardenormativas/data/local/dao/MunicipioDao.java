@@ -141,4 +141,11 @@ public interface MunicipioDao {
      */
     @Query("SELECT COUNT(*) FROM municipios")
     int contarMunicipios();
+
+    /**
+     * Cuenta cuántos municipios tienen ya una normativa asignada.
+     * Consideramos "completo" cualquier municipio que NO esté en estado SIN_DATOS.
+     */
+    @Query("SELECT COUNT(*) FROM municipios WHERE estado_norma != 'SIN_DATOS'")
+    int contarMunicipiosCompletos();
 }
