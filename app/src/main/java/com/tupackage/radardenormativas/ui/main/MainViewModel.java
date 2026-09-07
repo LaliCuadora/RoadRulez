@@ -20,7 +20,7 @@ public class MainViewModel extends AndroidViewModel {
     private final MunicipioRepository repository;
     private final MutableLiveData<Location> ubicacionActual;
     private final MutableLiveData<EstadoUbicacion> estadoUbicacion;
-    private final MutableLiveData<Double> porcentajeCompletado;
+    private final LiveData<Double> porcentajeCompletado;
 
     // ── Ahora es solo una declaración, sin inicializar aquí ──────────────────
     public final LiveData<List<Municipio>> municipiosCercanos;
@@ -34,7 +34,6 @@ public class MainViewModel extends AndroidViewModel {
     }
 
     // ── Constructor: todo se inicializa aquí, en orden garantizado ────────────
-    // ── Constructor: todo se inicializa aquí, en orden garantizado ────────────
     public MainViewModel(@NonNull Application application) {
         super(application);
 
@@ -44,7 +43,12 @@ public class MainViewModel extends AndroidViewModel {
         // 2. Luego los LiveData simples
         ubicacionActual  = new MutableLiveData<>();
         estadoUbicacion  = new MutableLiveData<>(EstadoUbicacion.ESPERANDO_PERMISO);
-        porcentajeCompletado = new MutableLiveData<>(0.0);
+        porcentajeCompletado = Transformations.map(repository.getConteoMunicipiosCompletos(),
+                                            count ->
+                                                {
+                                                    if (count == null) return 0.0;
+                                                    return count * 100.0 / 8131.0;
+                                                });
 
         // 3. Por último el switchMap, integrando tu nueva lógica con el executor
         municipiosCercanos = Transformations.switchMap(ubicacionActual, location -> {
@@ -64,13 +68,6 @@ public class MainViewModel extends AndroidViewModel {
 
             return resultado;
         });
-
-        actualizarEstadisticas();
-    }
-
-    public void actualizarEstadisticas() {
-        // En España hay 8131 municipios según el INE
-        repository.obtenerPorcentajeCompletado(8131, porcentajeCompletado::postValue);
     }
 
     public LiveData<Double> getPorcentajeCompletado() {
@@ -78,8 +75,21 @@ public class MainViewModel extends AndroidViewModel {
     }
 
     public void actualizarUbicacion(Location location) {
-        ubicacionActual.setValue(location);
-        estadoUbicacion.setValue(EstadoUbicacion.LISTO);
+        if (location == null) return;
+        
+        // Solo actualizamos si la ubicación es distinta o no teníamos ninguna
+        Location actual = ubicacionActual.getValue();
+        if (actual == null || 
+            actual.getLatitude() != location.getLatitude() || 
+            actual.getLongitude() != location.getLongitude()) {
+            
+            ubicacionActual.setValue(location);
+        }
+        
+        // Siempre marcamos como LISTO si recibimos una ubicación válida
+        if (estadoUbicacion.getValue() != EstadoUbicacion.LISTO) {
+            estadoUbicacion.setValue(EstadoUbicacion.LISTO);
+        }
     }
 
     public void reportarErrorPermiso() {

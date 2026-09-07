@@ -84,6 +84,14 @@ public class SyncManager {
         }
     }
 
+    /**
+     * Re-registra los geofences de todos los municipios que hay en la BD.
+     * Útil tras conceder permisos de ubicación si en el primer arranque falló.
+     */
+    public void refrescarGeofences() {
+        RadarDatabase.databaseWriteExecutor.execute(this::registrarGeofencesMunicipios);
+    }
+
     private void registrarGeofencesMunicipios() {
         List<Municipio> todos = dao.obtenerTodosSync();
         if (todos != null && !todos.isEmpty()) {

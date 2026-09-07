@@ -18,8 +18,8 @@ public class GeofenceManager {
 
     private static final String TAG          = "GeofenceManager";
     // Radio en metros del círculo de cada geofence
-    // 5km es razonable para municipios: detecta la entrada con margen
-    private static final float  RADIO_METROS = 5000f;
+    // 1km debido a que con un mayor radio pueden haber errores con municipios cercanos que estén muy pegados
+    private static final float  RADIO_METROS = 1000f;
 
     private final Context          context;
     private final GeofencingClient geofencingClient;

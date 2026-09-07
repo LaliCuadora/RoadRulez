@@ -147,5 +147,5 @@ public interface MunicipioDao {
      * Consideramos "completo" cualquier municipio que NO esté en estado SIN_DATOS.
      */
     @Query("SELECT COUNT(*) FROM municipios WHERE estado_norma != 'SIN_DATOS'")
-    int contarMunicipiosCompletos();
+    LiveData<Integer> contarMunicipiosCompletos();
 }

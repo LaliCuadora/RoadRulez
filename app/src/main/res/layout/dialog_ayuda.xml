@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <TextView
+        android:id="@+id/tv_ayuda_titulo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Guía de colores"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:textColor="@color/texto_principal"
+        android:layout_marginBottom="24dp"/>
+
+    <TextView
+        android:id="@+id/tv_ayuda_permitido"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="🟢 PERMITIDO: Puedes pernoctar libremente respetando las normas generales de tráfico."
+        android:textSize="16sp"
+        android:textColor="@color/texto_principal"
+        android:layout_marginBottom="16dp"/>
+
+    <TextView
+        android:id="@+id/tv_ayuda_restringido"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="🟡 RESTRINGIDO: Existen límites específicos (ej: áreas habilitadas o tiempo máx 24h)."
+        android:textSize="16sp"
+        android:textColor="@color/texto_principal"
+        android:layout_marginBottom="16dp"/>
+
+    <TextView
+        android:id="@+id/tv_ayuda_prohibido"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="🔴 PROHIBIDO: El ayuntamiento prohíbe la pernocta en todo el término municipal."
+        android:textSize="16sp"
+        android:textColor="@color/texto_principal"
+        android:layout_marginBottom="16dp"/>
+
+    <TextView
+        android:id="@+id/tv_ayuda_sin_datos"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="⚫ SIN DATOS: Aún no tenemos información verificada de este municipio."
+        android:textSize="16sp"
+        android:textColor="@color/texto_secundario"/>
+
+</LinearLayout>

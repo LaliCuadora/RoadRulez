@@ -2,6 +2,7 @@ package com.tupackage.radardenormativas;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.GradientDrawable;
 import android.location.Location;
@@ -22,6 +23,7 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
+import com.tupackage.radardenormativas.data.local.RadarDatabase;
 import com.tupackage.radardenormativas.data.local.entity.Municipio;
 import com.tupackage.radardenormativas.geofencing.GeofenceManager;
 import com.tupackage.radardenormativas.ui.main.MainViewModel;
@@ -50,6 +52,8 @@ public class MainActivity extends AppCompatActivity {
     private LocationRequest          locationRequest;
     private boolean                  geofencesRegistrados = false;
 
+    private static final String PREF_PRIMERA_VEZ = "es_primera_vez";
+
     private Municipio municipioActual; // campo nuevo para guardar referencia
 
     // ── Vistas ────────────────────────────────────────────────────────────────
@@ -72,13 +76,18 @@ public class MainActivity extends AppCompatActivity {
             registerForActivityResult(
                     new ActivityResultContracts.RequestPermission(),
                     concedido -> {
-                        if (!concedido) {
+                        if (concedido) {
+                            // Si nos dan el permiso de background, registramos los geofences
+                            RadarDatabase.databaseWriteExecutor.execute(() -> {
+                                new com.tupackage.radardenormativas.data.remote.SyncManager(this).refrescarGeofences();
+                            });
+                        } else {
                             mostrarDialogoPermisoBackground();
                         }
                     }
             );
 
-    private final ActivityResultLauncher<String[]> pedirPermisoUbicacion =
+    private final ActivityResultLauncher<String[]> pedirPermisosIniciales =
             registerForActivityResult(
                     new ActivityResultContracts.RequestMultiplePermissions(),
                     permisos -> {
@@ -86,11 +95,18 @@ public class MainActivity extends AppCompatActivity {
                                 permisos.get(Manifest.permission.ACCESS_FINE_LOCATION));
                         boolean groseoConcedido = Boolean.TRUE.equals(
                                 permisos.get(Manifest.permission.ACCESS_COARSE_LOCATION));
+                        
+                        // El de notificaciones es opcional para el core, pero mejor tenerlo
+                        boolean notifConcedido = true;
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            notifConcedido = Boolean.TRUE.equals(
+                                    permisos.get(Manifest.permission.POST_NOTIFICATIONS));
+                        }
 
                         if (finoConcedido || groseoConcedido) {
                             viewModel.iniciarBusquedaGps();
                             obtenerUbicacion();
-                            pedirPermisoBackgroundSiNecesario(); // ← segundo paso
+                            pedirPermisoBackgroundSiNecesario();
                         } else {
                             viewModel.reportarErrorPermiso();
                         }
@@ -110,8 +126,12 @@ public class MainActivity extends AppCompatActivity {
         NotificationHelper.crearCanalNotificaciones(this);
         geofenceManager = new GeofenceManager(this);
         observarEstados();
-        comprobarYPedirPermiso();
-    }
+        comprobarYPedirPermisos();
+        
+        SharedPreferences prefs = getSharedPreferences("RoadRulezPrefs", MODE_PRIVATE);
+        if (!prefs.getBoolean("descargo_aceptado", false)) {
+            mostrarDescargoResponsabilidad(prefs);
+        }    }
 
     @Override
     protected void onResume() {
@@ -174,8 +194,21 @@ public class MainActivity extends AppCompatActivity {
                 .show();
     }
 
+    /*
+        MUestra por pantalla la información sobre la información de que significa cada color.
+         Muestra el archivo xml dialog_ayuda.
+     */
+    private void mostrarDialogoAyuda() {
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                //Seleccionar el layout de dialog_ayuda
+                .setView(R.layout.dialog_ayuda)
+                //Añadir boton de cierre
+                .setPositiveButton("Entendido", null)
+                // .show() es la orden final para que aparezca en pantalla
+                .show();
+    }
 
-    @Override
+        @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_tema) {
             mostrarDialogoTema();
@@ -184,6 +217,10 @@ public class MainActivity extends AppCompatActivity {
         // ← NUEVO
         if (item.getItemId() == R.id.action_buscar) {
             startActivity(new Intent(this, SearchActivity.class));
+            return true;
+        }
+        if (item.getItemId() == R.id.action_info) {
+            mostrarDialogoAyuda();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -255,31 +292,65 @@ public class MainActivity extends AppCompatActivity {
 
     // ── Permisos ──────────────────────────────────────────────────────────────
 
-    private void comprobarYPedirPermiso() {
-        boolean tienePermiso = ContextCompat.checkSelfPermission(
+    private void comprobarYPedirPermisos() {
+        boolean tieneFino = ContextCompat.checkSelfPermission(
                 this, Manifest.permission.ACCESS_FINE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED;
 
-        if (tienePermiso) {
+        boolean tieneNotif = true;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            tieneNotif = ContextCompat.checkSelfPermission(
+                    this, Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED;
+        }
+
+        if (tieneFino && tieneNotif) {
             viewModel.iniciarBusquedaGps();
             obtenerUbicacion();
             pedirPermisoBackgroundSiNecesario();
         } else {
-            pedirPermisoUbicacion.launch(new String[]{
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-            });
+            java.util.List<String> lista = new java.util.ArrayList<>();
+            lista.add(Manifest.permission.ACCESS_FINE_LOCATION);
+            lista.add(Manifest.permission.ACCESS_COARSE_LOCATION);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                lista.add(Manifest.permission.POST_NOTIFICATIONS);
+            }
+            pedirPermisosIniciales.launch(lista.toArray(new String[0]));
         }
     }
 
+    private void mostrarDescargoResponsabilidad(SharedPreferences prefs)
+    {
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setView(R.layout.dialog_descargo_responsabilidad)
+                .setCancelable(false) // Obliga al usuario a pulsar el botón
+                .setPositiveButton("Aceptar y Continuar", (dialog, which) -> {
+                    // Guardamos que ya lo ha visto para que no vuelva a salir
+                    prefs.edit().putBoolean("descargo_aceptado", true).apply();
+                })
+                .show();
+    }
+
     private void pedirPermisoBackgroundSiNecesario() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return;
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            // En versiones viejas el permiso de background se concede con el normal,
+            // así que ya podemos registrar geofences.
+            RadarDatabase.databaseWriteExecutor.execute(() -> {
+                new com.tupackage.radardenormativas.data.remote.SyncManager(this).refrescarGeofences();
+            });
+            return;
+        }
 
         boolean yaTiene = ContextCompat.checkSelfPermission(
                 this, Manifest.permission.ACCESS_BACKGROUND_LOCATION
         ) == PackageManager.PERMISSION_GRANTED;
 
-        if (!yaTiene) {
+        if (yaTiene) {
+            // Si ya lo tiene, nos aseguramos de que los geofences estén activos
+            RadarDatabase.databaseWriteExecutor.execute(() -> {
+                new com.tupackage.radardenormativas.data.remote.SyncManager(this).refrescarGeofences();
+            });
+        } else {
             new androidx.appcompat.app.AlertDialog.Builder(this)
                     .setTitle("Permiso de ubicación en segundo plano")
                     .setMessage(
@@ -321,6 +392,13 @@ public class MainActivity extends AppCompatActivity {
 
     @SuppressWarnings("MissingPermission")
     private void obtenerUbicacion() {
+        // Primero intentamos obtener la ÚLTIMA ubicación conocida para no esperar al GPS si ya existe una
+        fusedLocationClient.getLastLocation().addOnSuccessListener(this, location -> {
+            if (location != null) {
+                viewModel.actualizarUbicacion(location);
+            }
+        });
+
         locationRequest = new LocationRequest.Builder(
                 Priority.PRIORITY_HIGH_ACCURACY, 5000L) //Intervalo de esperar para consultar ubicación
                 .setMinUpdateIntervalMillis(2000L)                 //Intervalo de espera mínimo para consultar ubicación
@@ -330,7 +408,15 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onLocationResult(LocationResult result) {
                 if (result == null) return;
+                
+                // Intentamos obtener la última ubicación conocida de la lista
                 Location location = result.getLastLocation();
+                
+                // Si getLastLocation() es nulo pero hay localizaciones en el resultado, tomamos la última
+                if (location == null && !result.getLocations().isEmpty()) {
+                    location = result.getLocations().get(result.getLocations().size() - 1);
+                }
+
                 if (location != null) {
                     viewModel.actualizarUbicacion(location);
                 }

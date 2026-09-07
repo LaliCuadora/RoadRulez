@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Descargo de Responsabilidad"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="?android:attr/textColorPrimary"
+            android:gravity="center"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Aviso Legal y Limitación de Responsabilidad"
+            android:textSize="14sp"
+            android:textStyle="italic"
+            android:textColor="?android:attr/textColorSecondary"
+            android:gravity="center"
+            android:layout_marginBottom="16dp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="?android:attr/listDivider"
+            android:layout_marginBottom="16dp" />
+
+        <TextView
+            android:id="@+id/textView3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Origen de la Información: Toda la información facilitada en esta aplicación sobre la normativa, legislación y regulaciones de estacionamiento, pernocta y acampada para vehículos vivienda procede de fuentes públicas u oficiales (boletines oficiales, sedes electrónicas municipales y normativas estatales o autonómicas).\n\nCarácter Informativo: La información recopilada en esta plataforma se ofrece con fines estrictamente informativos, orientativos y de consulta general. En ningún caso constituye asesoramiento jurídico o legal vinculante.\n\nVariabilidad y Cambios Legales: Las leyes, ordenanzas municipales y regulaciones de tráfico o medioambiente son dinámicas y están sujetas a modificaciones, reinterpretaciones o actualizaciones frecuentes por parte de los organismos públicos competentes. Aunque realizamos esfuerzos continuos por mantener la base de datos actualizada, no se garantiza que la información mostrada refleje en todo momento la normativa en vigor.\n\nExención de Responsabilidad: El creador, desarrollador y titulares de esta aplicación no se hacen responsables bajo ninguna circunstancia de:\n\n• Las sanciones, multas administrativas o expedientes incoados por las autoridades competentes (Policía Local, Guardia Civil, Agentes Forestales, Costas, etc.) derivadas de la pernocta, estacionamiento o acampada.\n\n• La falta de actualización puntual de los datos reflejados en la app.\n\n• La interpretación errónea, uso indebido o aplicación incorrecta de la información por parte de las personas usuarias.\n\nResponsabilidad de la Persona Usuaria: Es responsabilidad única y exclusiva del conductor o usuario verificar in situ la señalización vial, la normativa local vigente y las indicaciones de las autoridades correspondientes en el lugar de estacionamiento o pernocta."
+            android:textSize="15sp"
+            android:lineSpacingExtra="4dp"
+            android:textColor="?android:attr/textColorPrimary" />
+
+    </LinearLayout>
+</ScrollView>

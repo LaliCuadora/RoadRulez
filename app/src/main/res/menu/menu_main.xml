@@ -10,7 +10,12 @@
 
     <item
         android:id="@+id/action_tema"
-        android:title="Cambiar tema"
         android:icon="@drawable/ic_tema"
-        app:showAsAction="always"/>
+        android:title="Cambiar tema"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/action_info"
+        android:icon="@drawable/ic_info"
+        android:title="Informacion restricciones"
+        app:showAsAction="always" />
 </menu>
