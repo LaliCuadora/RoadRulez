@@ -121,6 +121,7 @@ public class GeocodingService {
      */
     private static ResultadoGeocodificacion parsearRespuesta(String json) {
         try {
+            Log.d(TAG, "NOMINATIM JSON COMPLETO: " + json);
             JSONObject raiz = new JSONObject(json);
 
             // Intentar obtener el código INE de extratags

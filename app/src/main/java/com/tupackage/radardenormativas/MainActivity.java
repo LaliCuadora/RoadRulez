@@ -458,7 +458,7 @@ public class MainActivity extends AppCompatActivity {
         if (municipio.getUltimaActualizacion() > 0) {
             String fecha = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
                     .format(new Date(municipio.getUltimaActualizacion()));
-            tvFecha.setText("Actualizado: " + fecha);
+            tvFecha.setText("Fecha de la normativa: " + fecha);
         }
 
         // Color del indicador y badge

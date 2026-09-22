@@ -82,12 +82,12 @@ public class NormativaJsonParser {
     }
 
     /**
-     * Convierte "2024-03-15" → milisegundos Unix.
+     * Convierte "dd/MM/yyyy" → milisegundos Unix.
      * Devuelve System.currentTimeMillis() si falla el parseo.
      */
     private static long parsearFecha(String fechaStr) {
         try {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
             Date date = sdf.parse(fechaStr);
             return date != null ? date.getTime() : System.currentTimeMillis();
         } catch (Exception e) {

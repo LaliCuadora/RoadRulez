@@ -72,7 +72,7 @@ public class DetailActivity extends AppCompatActivity {
                     "dd/MM/yyyy", Locale.getDefault()
             ).format(new Date(fecha));
             ((TextView) findViewById(R.id.tv_detalle_fecha))
-                    .setText("Última actualización: " + fechaFormateada);
+                    .setText("Fecha de la normativa: " + fechaFormateada);
         }
 
         // Badge de estado con color de fondo dinámico
