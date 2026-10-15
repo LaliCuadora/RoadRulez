@@ -44,12 +44,10 @@ public class SyncManager {
             "https://raw.githubusercontent.com/LaliCuadora/RoadRulez_Data/master/normativas_v1.json";
     private final Context      context;
     private final MunicipioDao dao;
-    private final GeofenceManager geofenceManager;
 
     public SyncManager(Context context) {
         this.context          = context.getApplicationContext();
         this.dao              = RadarDatabase.getInstance(this.context).municipioDao();
-        this.geofenceManager = new GeofenceManager(this.context);
     }
 
     // ── API pública ───────────────────────────────────────────────────────────
@@ -71,32 +69,12 @@ public class SyncManager {
             comprobarActualizacionLocal(versionLocal);
         }
 
-        // Siempre intentamos registrar los geofences de todos los municipios
-        // que tengamos en la BD al arrancar (ya sean del APK o de syncs previas)
-        registrarGeofencesMunicipios();
-
         // Si hay internet, intentamos actualizar
         if (hayConexionInternet()) {
             Log.d(TAG, "Hay internet: comprobando actualizaciones...");
             sincronizarRemoto();
         } else {
             Log.d(TAG, "Sin internet: usando datos locales (v" + versionLocal + ")");
-        }
-    }
-
-    /**
-     * Re-registra los geofences de todos los municipios que hay en la BD.
-     * Útil tras conceder permisos de ubicación si en el primer arranque falló.
-     */
-    public void refrescarGeofences() {
-        RadarDatabase.databaseWriteExecutor.execute(this::registrarGeofencesMunicipios);
-    }
-
-    private void registrarGeofencesMunicipios() {
-        List<Municipio> todos = dao.obtenerTodosSync();
-        if (todos != null && !todos.isEmpty()) {
-            Log.d(TAG, "Registrando geofences para " + todos.size() + " municipios");
-            geofenceManager.registrarGeofences(todos);
         }
     }
 
@@ -149,9 +127,6 @@ public class SyncManager {
                 insertarMunicipios(resultado.municipios);
                 guardarVersionLocal(versionRemota);
                 
-                // Actualizamos los geofences con los nuevos datos recibidos
-                registrarGeofencesMunicipios();
-
                 Log.d(TAG, "Sincronización completada ✅ (v" + versionRemota + ")");
             } else {
                 Log.d(TAG, "Los datos ya están actualizados (v" + versionLocal + ")");

@@ -7,7 +7,10 @@ import androidx.lifecycle.LiveData;
 import com.tupackage.radardenormativas.data.local.RadarDatabase;
 import com.tupackage.radardenormativas.data.local.dao.MunicipioDao;
 import com.tupackage.radardenormativas.data.local.entity.Municipio;
+import com.tupackage.radardenormativas.data.remote.GeocodingService;
+import com.tupackage.radardenormativas.data.remote.GeocodingService.ResultadoGeocodificacion;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -46,11 +49,32 @@ public class MunicipioRepository {
     }
 
     /**
-     * Devuelve una lista síncrona de los municipios más cercanos.
+     * Devuelve una lista síncrona de los municipios más cercanos o detectados por Nominatim.
      * Úsalo dentro de background threads.
      */
     public List<Municipio> obtenerMunicipioActualConCercanos(double latitud, double longitud) {
-        return municipioDao.obtenerMunicipiosCercanosSync(latitud, longitud, 5);
+        // 1. Intentar geocodificación inversa mediante Nominatim (API REST)
+        ResultadoGeocodificacion resultado = GeocodingService.obtenerMunicipio(latitud, longitud);
+
+        List<Municipio> cercanos = municipioDao.obtenerMunicipiosCercanosSync(latitud, longitud, 5);
+
+        if (resultado != null && resultado.codigoIne != null) {
+            Municipio detectado = municipioDao.obtenerPorCodigoIneSync(resultado.codigoIne);
+            if (detectado != null) {
+                List<Municipio> listaFinal = new ArrayList<>();
+                listaFinal.add(detectado);
+                for (Municipio m : cercanos) {
+                    if (!m.getCodigoIne().equals(detectado.getCodigoIne())) {
+                        listaFinal.add(m);
+                    }
+                }
+                return listaFinal;
+            }
+        }
+
+        // 2. Fallback: Si la llamada a Nominatim falla (sin conexión, timeout) o el INE no existe en BD,
+        // devolvemos los municipios ordenados por proximidad calculada en SQLite/Room.
+        return cercanos;
     }
 
     // ── Escritura (siempre en background) ────────────────────────────────────

@@ -77,10 +77,8 @@ public class MainActivity extends AppCompatActivity {
                     new ActivityResultContracts.RequestPermission(),
                     concedido -> {
                         if (concedido) {
-                            // Si nos dan el permiso de background, registramos los geofences
-                            RadarDatabase.databaseWriteExecutor.execute(() -> {
-                                new com.tupackage.radardenormativas.data.remote.SyncManager(this).refrescarGeofences();
-                            });
+                            // Permiso concedido, ahora solicitamos el permiso para las notificaciones
+                            comprobarYPedirNotificaciones();
                         } else {
                             mostrarDialogoPermisoBackground();
                         }
@@ -280,6 +278,14 @@ public class MainActivity extends AppCompatActivity {
             if (municipios == null || municipios.isEmpty()) return;
 
             mostrarInfoMunicipio(municipios.get(0));
+
+            boolean tienePermiso = ContextCompat.checkSelfPermission(
+                    this, Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED;
+
+            if (tienePermiso) {
+                geofenceManager.registrarGeofences(municipios);
+            }
         });
 
         viewModel.getPorcentajeCompletado().observe(this, porcentaje -> {
@@ -293,7 +299,7 @@ public class MainActivity extends AppCompatActivity {
     // ── Permisos ──────────────────────────────────────────────────────────────
 
     private void comprobarYPedirPermisos() {
-        boolean tieneFino = ContextCompat.checkSelfPermission(
+        boolean tieneUbi = ContextCompat.checkSelfPermission(
                 this, Manifest.permission.ACCESS_FINE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED;
 
@@ -304,19 +310,13 @@ public class MainActivity extends AppCompatActivity {
             ) == PackageManager.PERMISSION_GRANTED;
         }
 
-        if (tieneFino && tieneNotif) {
+        if (tieneUbi){
             viewModel.iniciarBusquedaGps();
             obtenerUbicacion();
             pedirPermisoBackgroundSiNecesario();
-        } else {
-            java.util.List<String> lista = new java.util.ArrayList<>();
-            lista.add(Manifest.permission.ACCESS_FINE_LOCATION);
-            lista.add(Manifest.permission.ACCESS_COARSE_LOCATION);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                lista.add(Manifest.permission.POST_NOTIFICATIONS);
-            }
-            pedirPermisosIniciales.launch(lista.toArray(new String[0]));
         }
+        else
+            solicitarPermisoUbicacion();
     }
 
     private void mostrarDescargoResponsabilidad(SharedPreferences prefs)
@@ -332,12 +332,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void pedirPermisoBackgroundSiNecesario() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            // En versiones viejas el permiso de background se concede con el normal,
-            // así que ya podemos registrar geofences.
-            RadarDatabase.databaseWriteExecutor.execute(() -> {
-                new com.tupackage.radardenormativas.data.remote.SyncManager(this).refrescarGeofences();
-            });
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q){
+            //Solicitamos el permiso de notificaciones antes de finalizar el proceso
+            comprobarYPedirNotificaciones();
             return;
         }
 
@@ -345,12 +342,7 @@ public class MainActivity extends AppCompatActivity {
                 this, Manifest.permission.ACCESS_BACKGROUND_LOCATION
         ) == PackageManager.PERMISSION_GRANTED;
 
-        if (yaTiene) {
-            // Si ya lo tiene, nos aseguramos de que los geofences estén activos
-            RadarDatabase.databaseWriteExecutor.execute(() -> {
-                new com.tupackage.radardenormativas.data.remote.SyncManager(this).refrescarGeofences();
-            });
-        } else {
+        if (!yaTiene) {
             new androidx.appcompat.app.AlertDialog.Builder(this)
                     .setTitle("Permiso de ubicación en segundo plano")
                     .setMessage(
@@ -363,11 +355,82 @@ public class MainActivity extends AppCompatActivity {
                                     Manifest.permission.ACCESS_BACKGROUND_LOCATION
                             )
                     )
-                    .setNegativeButton("Ahora no", null)
+                    .setNegativeButton("Ahora no", (dialog, which) ->
+                                                         comprobarYPedirNotificaciones())
                     .show();
         }
+        else {
+            //Solicitamos el permiso de notificaciones
+            comprobarYPedirNotificaciones();
+        }
+    }
+    /********************************************************************/
+    //PERMISO DE UBICACION
+    /********************************************************************/
+    private final ActivityResultLauncher<String[]> pedirPermisoUbicacion =
+            registerForActivityResult(
+                    new ActivityResultContracts.RequestMultiplePermissions(),
+                    permisos -> {
+                        boolean concedido = Boolean.TRUE.equals(permisos.get(Manifest.permission.ACCESS_FINE_LOCATION))
+                                || Boolean.TRUE.equals(permisos.get(Manifest.permission.ACCESS_COARSE_LOCATION));
+
+                        if (concedido) {
+                            viewModel.iniciarBusquedaGps();
+                            obtenerUbicacion();
+                            pedirPermisoBackgroundSiNecesario();
+                        } else {
+                            viewModel.reportarErrorPermiso();
+                        }
+                    }
+            );
+
+
+    private void solicitarPermisoUbicacion() {
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Permiso de ubicacion")
+                .setMessage(
+                        "Esta aplicación necesita acceder a la ubicación para poder conocer"+
+                                " el municipio actual y así funcionar correctamente"
+
+                )
+                .setPositiveButton("Entendido", (dialog, which) -> {
+                    pedirPermisoUbicacion.launch(new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
+                                                              Manifest.permission.ACCESS_COARSE_LOCATION
+                    });
+                })
+                .setNegativeButton("Cancelar", (dialog,which) -> {
+                    viewModel.reportarErrorPermiso();
+                })
+                .show();
+    }
+    /********************************************************************/
+    //PERMISO DE NOTIFICACIONES
+    /********************************************************************/
+
+    private final ActivityResultLauncher<String> solicitarPermisoNotif =
+            registerForActivityResult(
+                    new ActivityResultContracts.RequestPermission(),
+                    concedido -> {
+                    }
+            );
+    private void comprobarYPedirNotificaciones() {
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Permiso de notificaciones")
+                .setMessage(
+                        "Las notificaciones permiten informar cuando entre a un nuevo municipio" +
+                                " aumentando la practicidad de la aplicación"
+
+                )
+                .setPositiveButton("Entendido", (dialog, which) -> {
+                    solicitarPermisoNotif.launch(Manifest.permission.POST_NOTIFICATIONS);
+                })
+                .setNegativeButton("Cancelar", null)
+                .show();
     }
 
+    /********************************************************************/
+    //PERMISO BACKGROUND
+    /********************************************************************/
     private void mostrarDialogoPermisoBackground() {
         new androidx.appcompat.app.AlertDialog.Builder(this)
                 .setTitle("Alertas desactivadas")
@@ -395,7 +458,12 @@ public class MainActivity extends AppCompatActivity {
         // Primero intentamos obtener la ÚLTIMA ubicación conocida para no esperar al GPS si ya existe una
         fusedLocationClient.getLastLocation().addOnSuccessListener(this, location -> {
             if (location != null) {
-                viewModel.actualizarUbicacion(location);
+                // Solo usar si tiene menos de 60 segundos de antigüedad
+                long edadMs = System.currentTimeMillis() - location.getTime();
+
+                if (edadMs < 60_000) {
+                    viewModel.actualizarUbicacion(location);
+                }
             }
         });
 
